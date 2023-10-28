@@ -1,0 +1,46 @@
+Arguments: 
+  /home/bartek/.nvm/versions/node/v16.14.0/bin/node /home/bartek/.nvm/versions/node/v16.14.0/bin/yarn
+
+PATH: 
+  /home/bartek/.nvm/versions/node/v16.14.0/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin
+
+Yarn version: 
+  1.22.17
+
+Node version: 
+  16.14.0
+
+Platform: 
+  linux x64
+
+Trace: 
+  Error: getaddrinfo EAI_AGAIN registry.yarnpkg.com
+      at GetAddrInfoReqWrap.onlookup [as oncomplete] (node:dns:71:26)
+
+npm manifest: 
+  {
+    "name": "stackblitz-starters-n5nw9q",
+    "version": "0.0.0",
+    "private": true,
+    "dependencies": {
+      "react": "18.2.0",
+      "react-dom": "18.2.0",
+      "@types/react": "18.2.31",
+      "@types/react-dom": "18.2.14"
+    },
+    "scripts": {
+      "start": "react-scripts start",
+      "build": "react-scripts build",
+      "test": "react-scripts test --env=jsdom",
+      "eject": "react-scripts eject"
+    },
+    "devDependencies": {
+      "react-scripts": "latest"
+    }
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile
