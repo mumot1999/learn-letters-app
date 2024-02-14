@@ -1,118 +1,61 @@
-import {FC, useEffect, useMemo, useState} from "react"
+import {FC, useCallback, useEffect, useMemo, useState} from "react"
 import "./style.css"
 import {cars, motory} from "./cars"
 import {letters} from "./letters-mp3"
+import {useLetter} from "./letter.hook"
 
 export const App: FC<{name: string}> = ({name}) => {
-	const [letter, setLetter] = useState("A")
-	const [showImage, setShowImage] = useState<string>()
+	const [pos, setPos] = useState(0)
 
-	const [score, setScore] = useState(0)
-	const [nextScore, setNextScore] = useState(0)
+	const [showHint, setShowHint] = useState(true)
 
-	const [isError, setIsError] = useState(false)
-
-  const [loading, setLoading] = useState(true)
-
-	const generateNewLetter = (): string => {
-		const lettersKeys = Object.keys(letters).map((x) => x.toUpperCase())
-
-		return lettersKeys[Math.floor(Math.random() * lettersKeys.length)]
-	}
-
-  const lettersMp3 = useMemo( () => Object.fromEntries(Object.entries(letters).map(([k, v]) => [k, new Audio(v)])), [])
-
-  
-  // useEffect(() => {
-  //   Object.values(lettersMp3).reduce<Promise<unknown>>(async (a,b) => {
-  //   await a
-  //   await new Promise(r => setTimeout(r, 1000))
-
-  //   return b.play()
-  // }, Promise.resolve()).then(() => {setLoading(false)})
-  // }, [])
-
-  // if(loading) {
-  //   return null
-  // }
+	const word = "kamil".toUpperCase()
 
 	useEffect(() => {
+		const time = setTimeout(() => setShowHint(true), 10000)
 
-    const play = () => {
-				lettersMp3[letter.toLowerCase()]?.play().catch(e => console.log(e))
-    }
+		return () => clearTimeout(time)
+	}, [pos])
 
-    let interval 
-		try {
-			if (showImage === undefined) {
-        play()
-        interval = setInterval(() => {play()}, 3000)
-      }
-		} catch(e) {
-      console.log(e)
-		}
+	const letter = useMemo(() => word[pos] ?? "", [pos])
 
-    return () => {clearInterval(interval)}
-	}, [letter, score, showImage])
-
-	useEffect(() => {
-		let timeout
-		const handleKeyPress = async (ev: KeyboardEvent): Promise<void> => {
-			window.removeEventListener("keypress", handleKeyPress)
-
-			timeout = setTimeout(() => {
-				const lastPressedLetter = ev.key.toUpperCase()
-
-				console.log(new Date().getTime(), {
-					letter,
-					lastPressedLetter,
-				})
-
-				if (showImage === undefined) {
-					if (lastPressedLetter === letter) {
-						setIsError(false)
-						setScore((score) => score + 1)
-						const images = [...cars, ...motory]
-
-						const shouldShowImage = nextScore <= score + 1
-
-						if (shouldShowImage) {
-							setNextScore((score) => score + Math.floor(Math.random() * 3) + 1)
-							setShowImage(images[Math.floor(Math.random() * images.length)])
-
-							setTimeout(() => {
-								setShowImage(undefined)
-							}, 5000)
-						}
-
-
-						setLetter(letter => {
-									const lettersKeys = Object.keys(letters).map((x) => x.toUpperCase())
-
-							return lettersKeys[(lettersKeys.indexOf(letter) + 1) % lettersKeys.length]
-						})
-						// setLetter(generateNewLetter())
-					} else if (lastPressedLetter !== undefined) {
-						// setIsError(true)
-					}
-				}
-			}, 10)
-			// await new Promise((res) => setTimeout(res, 100))
-			window.addEventListener("keypress", handleKeyPress)
-		}
-
-		window.addEventListener("keypress", handleKeyPress)
-
-		return () => window.removeEventListener("keypress", handleKeyPress)
-	}, [letter, showImage, score])
+	const {showImage, score, isError, setShowImage} = useLetter(letter, () => {
+		setPos((x) => {
+			setShowHint(false)
+			if (x + 1 === word.length) {
+				setShowImage()
+				setTimeout(() => {
+					setShowHint(true)
+					setPos(0)
+				}, 5000)
+			}
+			return x + 1
+		})
+	})
 
 	return (
-		<div>
+		<div style={{background: pos === word.length ? "green" : undefined}}>
 			<small>{score}</small>
+			<div>
+				{Array.from(word).map((x, i) => (
+					<span
+						style={{
+							fontSize: "6em",
+							color: i < pos ? "black" : showHint ? "#eee" : "white",
+						}}
+					>
+						{x}
+					</span>
+				))}
+			</div>
 			{showImage ? (
 				<img src={showImage} />
 			) : (
-				<h1 style={isError ? {color: "red"} : undefined}>{letter}</h1>
+				<div
+					style={{...(isError ? {color: "red"} : undefined), fontSize: "240px"}}
+				>
+					{/* {letter.toUpperCase()} {letter.toLowerCase()} */}
+				</div>
 			)}
 		</div>
 	)
