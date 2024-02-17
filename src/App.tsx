@@ -1,15 +1,23 @@
-import {FC, useCallback, useEffect, useMemo, useState} from "react"
+import { FC, useEffect, useMemo, useState } from "react"
+import { useLetter } from "./letter.hook"
 import "./style.css"
-import {cars, motory} from "./cars"
-import {letters} from "./letters-mp3"
-import {useLetter} from "./letter.hook"
+
+
+const getWord = (word?: string) => {
+	const WORDS = ["kamil", 'tata', 'auto', 'kubek'].map(x => x.toUpperCase()).filter(x => x !== word)
+	const i = (Math.floor(Math.random()*99)) % WORDS.length
+	const w = WORDS[i]
+	console.log({w, i})
+	return w
+}
 
 export const App: FC<{name: string}> = ({name}) => {
 	const [pos, setPos] = useState(0)
 
 	const [showHint, setShowHint] = useState(true)
 
-	const word = "kamil".toUpperCase()
+
+	const [word, setWord] = useState(getWord())
 
 	useEffect(() => {
 		const time = setTimeout(() => setShowHint(true), 10000)
@@ -17,16 +25,19 @@ export const App: FC<{name: string}> = ({name}) => {
 		return () => clearTimeout(time)
 	}, [pos])
 
-	const letter = useMemo(() => word[pos] ?? "", [pos])
+	const letter = useMemo(() => word[pos] ?? "", [pos, word])
 
 	const {showImage, score, isError, setShowImage} = useLetter(letter, () => {
 		setPos((x) => {
 			setShowHint(false)
 			if (x + 1 === word.length) {
+				if(Math.random() < 0.2)
 				setShowImage()
 				setTimeout(() => {
 					setShowHint(true)
 					setPos(0)
+					setWord(getWord())
+					
 				}, 5000)
 			}
 			return x + 1
